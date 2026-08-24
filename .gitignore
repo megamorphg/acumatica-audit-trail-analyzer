@@ -1,0 +1,8 @@
+dist/
+*.tmp.js
+*.b64.txt
+node_modules/
+.claude/
+MARKETING_BRIEF.md
+STORE_LISTING.md
+repairs.md

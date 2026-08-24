@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Panel preview — Acumatica Audit Trail Analyzer</title>
+  <link rel="stylesheet" href="../src/panel.css">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #eef1f5;
+      color: #1c2430;
+    }
+    .stage { padding: 40px; }
+    .stage h1 { font-size: 16px; margin: 0 0 6px; }
+    .stage p { margin: 0 0 16px; color: #62707f; font-size: 13px; }
+    .stage button {
+      font: inherit;
+      padding: 8px 14px;
+      border-radius: 7px;
+      border: 1px solid #1c6ea4;
+      background: #1c6ea4;
+      color: #fff;
+      cursor: pointer;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #12171e; color: #e7edf4; }
+      .stage p { color: #a8b4c2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <h1>Panel preview</h1>
+    <p>
+      Renders the reader panel against the SO004417 fixture — no Acumatica instance
+      and no extension install needed. Serve this folder (<code>npm run serve</code>)
+      rather than opening it from disk; the fixture is an ES module.
+    </p>
+    <button id="open">Open the panel</button>
+  </div>
+
+  <script src="../src/dictionary.js"></script>
+  <script src="../src/parser.js"></script>
+  <script src="../src/rules/common.js"></script>
+  <script src="../src/rules/so.js"></script>
+  <script src="../src/rules/po.js"></script>
+  <script src="../src/rules/arap.js"></script>
+  <script src="../src/rules/masters.js"></script>
+  <script src="../src/rules/fs.js"></script>
+  <script src="../src/narrative.js"></script>
+  <script src="../src/panel.js"></script>
+
+  <script type="module">
+    // ?fixture=fs-service-order to preview the noisier field service case.
+    const name = new URLSearchParams(location.search).get('fixture') || 'so004417';
+    const fixture = (await import(`./fixtures/${name}.mjs`)).default;
+
+    const model = AcuAudit.parser.buildModel(fixture);
+    const analysis = AcuAudit.narrative.analyze(model);
+    console.log('overview:', analysis.overview);
+    console.log('highlights:', analysis.highlights.length);
+
+    function open() {
+      AcuAudit.panel.open(analysis, {
+        showSystem: false,
+        // `view` is the filtered analysis when the filter box is in use.
+        onCopySummary: (showSystem, view) =>
+          console.log(AcuAudit.narrative.toMarkdown(view || analysis, { showSystemFields: showSystem })),
+        onCopyAi: view => console.log(AcuAudit.narrative.toAiDigest(view || analysis)),
+        onCopyDump: () => console.log(JSON.stringify(fixture, null, 2)),
+        onToggleSystem: v => console.log('show system fields:', v),
+      });
+    }
+
+    document.getElementById('open').addEventListener('click', open);
+    open();
+  </script>
+</body>
+</html>

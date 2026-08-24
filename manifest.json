@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "Acumatica Audit Trail Analyzer",
+  "version": "1.0.0",
+  "description": "Turns Acumatica's field-level audit history into a plain-English timeline of who changed what, and when.",
+  "permissions": ["activeTab", "scripting", "clipboardWrite", "storage"],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Explain Acumatica audit history",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "src/prompts.js",
+        "src/dictionary.js",
+        "src/parser.js",
+        "src/rules/common.js",
+        "src/rules/so.js",
+        "src/rules/po.js",
+        "src/rules/arap.js",
+        "src/rules/masters.js",
+        "src/rules/fs.js",
+        "src/narrative.js",
+        "src/scrape.js",
+        "src/legacy.js",
+        "src/panel.js",
+        "src/content.js"
+      ],
+      "css": ["src/panel.css"],
+      "run_at": "document_idle",
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/bridge.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ]
+}

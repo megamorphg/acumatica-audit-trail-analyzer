@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Store screenshot harness</title>
+  <link rel="stylesheet" href="../src/panel.css">
+  <style>
+    /* A neutral stage. The panel is the product; the backdrop only has to
+       stay out of its way and look the same in every shot. */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(160deg, #e8edf3 0%, #dbe3ec 100%);
+      color: #1c2430;
+    }
+  </style>
+</head>
+<body>
+  <script src="../src/dictionary.js"></script>
+  <script src="../src/parser.js"></script>
+  <script src="../src/rules/common.js"></script>
+  <script src="../src/rules/so.js"></script>
+  <script src="../src/rules/po.js"></script>
+  <script src="../src/rules/arap.js"></script>
+  <script src="../src/rules/masters.js"></script>
+  <script src="../src/rules/fs.js"></script>
+  <script src="../src/narrative.js"></script>
+  <script src="../src/panel.js"></script>
+
+  <script type="module">
+    // Drives the panel into one fixed state so a headless capture is
+    // reproducible:  ?shot=panel | filter | expanded  [&q=...] [&fixture=...]
+    const params  = new URLSearchParams(location.search);
+    const shot    = params.get('shot') || 'panel';
+    const query   = params.get('q') || 'unit cost';
+    const name    = params.get('fixture') || 'so004417';
+
+    const fixture  = (await import(`./fixtures/${name}.mjs`)).default;
+    const model    = AcuAudit.parser.buildModel(fixture);
+    const analysis = AcuAudit.narrative.analyze(model);
+
+    // The fixture is not an acquisition path, so its source badge would read
+    // "source: fixture". Store shots should show the badge users actually see.
+    analysis.source = params.get("source") || "viewmodel";
+
+    AcuAudit.panel.open(analysis, {
+      showSystem: false,
+      onCopySummary: () => {},
+      onCopyAi: () => {},
+      onCopyDump: () => {},
+      onToggleSystem: () => {},
+    });
+
+    const settle = ms => new Promise(r => setTimeout(r, ms));
+
+    if (shot === 'filter') {
+      const input = document.getElementById('acu-audit-filter');
+      input.value = query;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await settle(400);          // the filter re-renders on a 150ms debounce
+      input.focus();
+    }
+
+    if (shot === 'expanded') {
+      // One entry expanded, in context: the point of the shot is the plain
+      // sentence sitting directly above the field-level diff it came from.
+      // Which entry matters — the create action carries 135 fields and fills
+      // the frame on its own, burying the narrative it is supposed to explain.
+      const which   = Number(params.get('expand') || 2);
+      const details = document.querySelectorAll('#acu-audit-panel details');
+      if (details[which]) details[which].open = true;
+      await settle(200);
+      const body = document.getElementById('acu-audit-body');
+      if (body && params.get('scroll')) body.scrollTop = Number(params.get('scroll'));
+      await settle(200);
+    }
+
+    // Headless capture waits on this rather than a fixed sleep.
+    document.title = 'SHOT-READY';
+  </script>
+</body>
+</html>

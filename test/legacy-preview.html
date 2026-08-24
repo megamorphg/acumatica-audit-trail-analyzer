@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Classic audit adapter preview — Acumatica Audit Trail Analyzer</title>
+  <link rel="stylesheet" href="../src/panel.css">
+  <style>
+    body { font-family: Verdana; font-weight: normal; font-size: .7em; color: black; background: #fff; }
+    b { font-family: Verdana; font-weight: bold; color: black; }
+    .audittitle, h1 { font-family: Verdana; font-size: 18pt; font-weight: 600; padding-left: 10px; }
+    .placeholder { padding-left: 10px; }
+    .container { width: 100%; padding-left: 10px; padding-right: 5px; table-layout: fixed; border: 1px ridge #C9C9C9; }
+    .data { font-size: small; font-weight: bold; color: #4E4E4E; }
+    .error { font-size: small; color: #4E4E4E; }
+    #harness { position: fixed; right: 12px; bottom: 12px; z-index: 5; font-size: 14px; }
+    #harness button { font: inherit; padding: 8px 14px; border-radius: 7px; border: 1px solid #1c6ea4; background: #1c6ea4; color: #fff; cursor: pointer; }
+  </style>
+</head>
+<!--
+  A faithful copy of the classic-UI audit window's markup, taken from
+  Frames/Audit.aspx and Controls/AuditItem.ascx(.cs) plus a real column table
+  captured from a live instance. Serve this (npm run serve) and open it to
+  exercise src/legacy.js against a real DOM — node has none, so this is where
+  the adapter is actually verified.
+
+  Deliberately reproduced quirks:
+    - old/new marked by inline color:DarkRed / color:DarkGreen, never a class
+    - the batch body is display:none until expanded, and stays in the DOM
+    - booleans are PXImage sprites carrying the icon name in a class
+    - a blank value renders as <br>, leaving no text behind
+    - batch dates are raw UTC while the info panel is converted to the
+      viewing user's timezone, so the two disagree by that offset
+-->
+<body>
+  <h1 id="auditTitle">Audit History: Sales Order</h1>
+  <hr width="99%" size="2" color="#999999" />
+
+  <div id="caption">
+    <span style="font-weight:bold;">Order Type:</span> <span>SO</span>
+    <span style="font-weight:bold;">Order Nbr.:</span> <span>SO256890</span>
+  </div>
+
+  <div id="panelHolder">
+    <table class="placeholder" style="width:100%">
+      <tr>
+        <td style="width:400px;"><b>Created By: </b><span id="edCreatedByID">rkeane@northwind.example</span></td>
+        <td><b>Last Modified By: </b><span id="edLastModifiedByID">rkeane@northwind.example</span></td>
+      </tr>
+      <tr>
+        <td><b>Created Through: </b><span id="edCreatedByScreenID">SO301000</span></td>
+        <td><b>Last Modified Through: </b><span id="edLastModifiedByScreenID">SO301000</span></td>
+      </tr>
+      <tr>
+        <td><b>Created On: </b><span id="edCreatedDateTime">8/5/2026 12:45:12 PM</span></td>
+        <td><b>Last Modified On: </b><span id="edLastModifiedDateTime">8/5/2026 4:15:40 PM</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div id="placeholder">
+
+    <!-- newest batch first, as the page renders them -->
+    <div id="ctl21_pnlTraceItem">
+      <table class="container">
+        <tr><td style="width:100%;vertical-align:top;">
+          <div id="ctl21_PXPanel1">
+            <b><span id="ctl21_lblDate" class="data">Date: </span><span id="ctl21_txtDate" class="error">8/5/2026 8:15:40 PM</span></b>
+            <b><span id="ctl21_lblUser" class="data">User: </span><span id="ctl21_txtUser" class="error">rkeane@northwind.example</span></b>
+            <b><span id="ctl21_lblScreen" class="data">Screen: </span><span id="ctl21_txtScreen" class="error">SO301000</span></b>
+          </div>
+        </td></tr>
+        <tr><td colspan="1" style="width:100%">
+          <span id="ctl21_Label1">Changes:</span>
+          <div id="ctl21_outputDiv" name="outputDiv" style="width:100%; display:none; word-wrap: break-word">
+            <table id="ctl21_tblDetails">
+              <tr><td>
+                <div><span style="font-weight:bold;">Sales Order</span><span>Updated</span></div>
+              </td></tr>
+              <tr><td colspan="1">
+                <div>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1" style="border-color:buttonface;border-width:1px;border-style:Solid;height:100%;">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;padding-left:5px;padding-right:5px;">Order Type</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkRed;background-color:GhostWhite;height:15px;">SO</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;height:15px;">SO</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Order Nbr.</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkRed;background-color:GhostWhite;">SO256890</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">SO256890</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Status</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkRed;background-color:GhostWhite;">Open</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">Credit Hold</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Credit Hold</td>
+                    </tr><tr>
+                      <td align="center" style="color:DarkRed;background-color:GhostWhite;">
+                        <div class="sprite-icon control-icon" icon="GridUncheck"><div class="control-icon-img control-GridUncheck"></div></div>
+                      </td>
+                    </tr><tr>
+                      <td align="center" style="color:DarkGreen;background-color:GhostWhite;">
+                        <div class="sprite-icon control-icon" icon="GridCheck"><div class="control-icon-img control-GridCheck"></div></div>
+                      </td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Customer Order Nbr.</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkRed;background-color:GhostWhite;"><br></td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">40928-02</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">ShipmentCntr</td>
+                    </tr><tr>
+                      <td align="right" style="color:DarkRed;background-color:GhostWhite;">0</td>
+                    </tr><tr>
+                      <td align="right" style="color:DarkGreen;background-color:GhostWhite;">1</td>
+                    </tr></tbody>
+                  </table>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </td></tr>
+      </table>
+    </div>
+
+    <!-- oldest batch: an insert, so one value row per column and no red -->
+    <div id="ctl22_pnlTraceItem">
+      <table class="container">
+        <tr><td style="width:100%;vertical-align:top;">
+          <div id="ctl22_PXPanel1">
+            <b><span id="ctl22_lblDate" class="data">Date: </span><span id="ctl22_txtDate" class="error">8/5/2026 4:45:12 PM</span></b>
+            <b><span id="ctl22_lblUser" class="data">User: </span><span id="ctl22_txtUser" class="error">rkeane@northwind.example</span></b>
+            <b><span id="ctl22_lblScreen" class="data">Screen: </span><span id="ctl22_txtScreen" class="error">SO301000</span></b>
+          </div>
+        </td></tr>
+        <tr><td colspan="1" style="width:100%">
+          <span id="ctl22_Label1">Changes:</span>
+          <div id="ctl22_outputDiv" name="outputDiv" style="width:100%; display:none;">
+            <table id="ctl22_tblDetails">
+              <tr><td>
+                <div><span style="font-weight:bold;">Sales Order</span><span>Inserted</span></div>
+              </td></tr>
+              <tr><td colspan="1">
+                <div>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Order Type</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">SO</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Order Nbr.</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">SO256890</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Customer</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">C01187</td>
+                    </tr></tbody>
+                  </table>
+                  <table class="auto-size" rules="all" bordercolor="ControlLight" border="1">
+                    <tbody><tr>
+                      <td style="color:DarkSlateGray;font-weight:bold;">Status</td>
+                    </tr><tr>
+                      <td align="left" style="color:DarkGreen;background-color:GhostWhite;">Open</td>
+                    </tr></tbody>
+                  </table>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </td></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <span class="placeholder">
+    <hr width="99%" size="2" color="#999999" />
+    <b>Version:</b> <span>25.201.0000</span>
+  </span>
+
+  <div id="harness"><button id="open">Open the panel</button></div>
+
+  <script src="../src/dictionary.js"></script>
+  <script src="../src/parser.js"></script>
+  <script src="../src/rules/common.js"></script>
+  <script src="../src/rules/so.js"></script>
+  <script src="../src/rules/po.js"></script>
+  <script src="../src/rules/arap.js"></script>
+  <script src="../src/rules/masters.js"></script>
+  <script src="../src/rules/fs.js"></script>
+  <script src="../src/narrative.js"></script>
+  <script src="../src/legacy.js"></script>
+  <script src="../src/panel.js"></script>
+
+  <script>
+    (async () => {
+      const result = await AcuAudit.legacy.collect();
+      window.__legacyResult = result;
+      console.log('isPresent:', AcuAudit.legacy.isPresent());
+      console.log('collect:', JSON.stringify(result, null, 1));
+      if (!result.ok) return;
+
+      const analysis = AcuAudit.narrative.analyze(AcuAudit.parser.buildModel(result.payload));
+      window.__analysis = analysis;
+      console.log('overview:', analysis.overview);
+
+      function open() {
+        AcuAudit.panel.open(analysis, {
+          showSystem: false,
+          onCopySummary: (showSystem, view) =>
+            console.log(AcuAudit.narrative.toMarkdown(view || analysis, { showSystemFields: showSystem })),
+          onCopyAi: view => console.log(AcuAudit.narrative.toAiDigest(view || analysis)),
+          onCopyDump: () => console.log(JSON.stringify(result.payload, null, 2)),
+          onToggleSystem: v => console.log('show system fields:', v),
+        });
+      }
+      document.getElementById('open').addEventListener('click', open);
+      open();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+/* Everything is scoped under #acu-audit-* so nothing leaks into Acumatica's
+   own styling, and nothing of Acumatica's leaks in. */
+
+#acu-audit-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+#acu-audit-fab button {
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #1c6ea4;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+#acu-audit-fab button:hover { filter: brightness(1.08); }
+
+#acu-audit-fab button.acu-secondary {
+  background: #fff;
+  color: #333;
+}
+
+#acu-audit-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 2147483001;
+  max-width: 70vw;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(20, 20, 20, 0.92);
+  color: #fff;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+#acu-audit-toast.acu-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- panel ---------- */
+
+#acu-audit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483002;
+  background: rgba(15, 20, 28, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #1c2430;
+}
+
+#acu-audit-panel {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+  width: min(1040px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#acu-audit-panel header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #e6eaef;
+}
+
+#acu-audit-panel header h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+#acu-audit-panel header .acu-sub {
+  font-size: 12px;
+  color: #62707f;
+  margin-left: auto;
+  text-align: right;
+  line-height: 1.4;
+}
+
+#acu-audit-panel header .acu-source {
+  font-size: 11px;
+  color: #97a2ae;
+  font-style: italic;
+}
+
+#acu-audit-panel .acu-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #62707f;
+  padding: 0 2px;
+}
+
+#acu-audit-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e6eaef;
+  background: #f7f9fb;
+}
+
+#acu-audit-toolbar button {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #cfd8e2;
+  background: #fff;
+  cursor: pointer;
+}
+
+#acu-audit-toolbar button:hover { background: #eef3f8; }
+
+#acu-audit-toolbar label {
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: #46525f;
+}
+
+.acu-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e6eaef;
+}
+
+.acu-filter input {
+  font: inherit;
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+  padding: 7px 11px;
+  border-radius: 6px;
+  border: 1px solid #cfd8e2;
+  background: #fff;
+  color: inherit;
+}
+
+.acu-filter input:focus {
+  outline: 2px solid #7fb2dd;
+  outline-offset: -1px;
+  border-color: #7fb2dd;
+}
+
+.acu-filter-hint {
+  font-size: 11.5px;
+  color: #7b8896;
+  white-space: nowrap;
+}
+
+#acu-audit-body mark {
+  background: #ffe9a8;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.acu-note {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  color: #46525f;
+}
+
+#acu-audit-body {
+  overflow: auto;
+  padding: 18px 20px 24px;
+}
+
+.acu-warning {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff5e0;
+  border: 1px solid #f0d9a8;
+  color: #6b4e0e;
+  font-size: 13px;
+}
+
+.acu-story {
+  margin: 0 0 20px;
+  padding: 14px 16px 16px;
+  border-radius: 10px;
+  background: #eef5fb;
+  border: 1px solid #d3e3f1;
+}
+
+.acu-overview {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #46525f;
+}
+
+.acu-highlights {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acu-highlights li {
+  padding: 7px 0;
+  border-top: 1px solid #dbe7f2;
+}
+
+.acu-highlights li:first-child { border-top: none; }
+
+.acu-hl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 12px;
+  color: #62707f;
+  margin-bottom: 2px;
+}
+
+/* Dot separators, so the markup stays free of decorative text nodes. */
+.acu-hl-meta > * + *::before {
+  content: '·';
+  margin-inline-end: 8px;
+  color: #a8b4c2;
+}
+
+.acu-hl-when {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.acu-hl-user { color: #1c6ea4; white-space: nowrap; }
+.acu-hl-screen { color: #a06a1c; }
+
+.acu-hl-text { font-size: 13.5px; line-height: 1.5; }
+
+.acu-highlights li.acu-foreign-line { border-left: 2px solid #d98a2b; padding-left: 10px; }
+
+.acu-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7b8896;
+  margin: 0 0 10px;
+}
+
+.acu-action {
+  border-left: 3px solid #cfd8e2;
+  padding: 0 0 14px 14px;
+  margin: 0 0 4px;
+}
+
+.acu-action.acu-silent { opacity: 0.55; }
+.acu-action.acu-foreign { border-left-color: #d98a2b; }
+
+.acu-action-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 12.5px;
+  color: #62707f;
+  margin-bottom: 4px;
+}
+
+.acu-action-head .acu-time { font-weight: 650; color: #1c2430; }
+.acu-action-head .acu-user { color: #1c6ea4; }
+
+.acu-action ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.acu-action li { margin: 2px 0; }
+.acu-action li.acu-low { color: #7b8896; }
+
+.acu-action details {
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+
+.acu-action details summary {
+  cursor: pointer;
+  color: #62707f;
+}
+
+.acu-fields {
+  margin: 8px 0 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.acu-fields th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7b8896;
+  border-bottom: 1px solid #e6eaef;
+  padding: 4px 8px 4px 0;
+}
+
+.acu-fields td {
+  padding: 3px 8px 3px 0;
+  border-bottom: 1px solid #f1f4f7;
+  vertical-align: top;
+  font-size: 12.5px;
+}
+
+.acu-fields tr.acu-tier-noise td { color: #97a2ae; }
+.acu-fields .acu-old { color: #b03030; }
+.acu-fields .acu-new { color: #1f7a3d; }
+.acu-fields .acu-field { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+.acu-table-caption {
+  margin: 10px 0 2px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #46525f;
+}
+
+.acu-empty {
+  color: #7b8896;
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  #acu-audit-backdrop { color: #e7edf4; }
+  #acu-audit-panel { background: #1a2029; }
+  #acu-audit-panel header,
+  #acu-audit-toolbar { border-bottom-color: #2c3542; }
+  #acu-audit-toolbar { background: #212936; }
+  #acu-audit-toolbar button { background: #2a333f; border-color: #3a4553; color: #e7edf4; }
+  #acu-audit-toolbar button:hover { background: #333e4c; }
+  #acu-audit-toolbar label { color: #a8b4c2; }
+  .acu-filter { border-bottom-color: #2c3542; }
+  .acu-filter input { background: #2a333f; border-color: #3a4553; color: #e7edf4; }
+  .acu-filter-hint { color: #7b8896; }
+  .acu-note { color: #a8b4c2; }
+  #acu-audit-body mark { background: #6b5416; color: #f6e3b0; }
+  .acu-story { background: #1f2c38; border-color: #2f4356; }
+  .acu-overview { color: #a8b4c2; }
+  .acu-highlights li { border-top-color: #2f4356; }
+  .acu-hl-meta { color: #a8b4c2; }
+  .acu-hl-meta > * + *::before { color: #62707f; }
+  .acu-hl-user { color: #6cb6e8; }
+  .acu-hl-screen { color: #d9a45c; }
+  .acu-warning { background: #3a2f18; border-color: #5e4a1e; color: #f0d9a8; }
+  .acu-action { border-left-color: #3a4553; }
+  .acu-action-head .acu-time { color: #e7edf4; }
+  .acu-action-head .acu-user { color: #6cb6e8; }
+  .acu-fields th { border-bottom-color: #2c3542; }
+  .acu-fields td { border-bottom-color: #232b36; }
+  .acu-fields .acu-old { color: #e08585; }
+  .acu-fields .acu-new { color: #7ac795; }
+  #acu-audit-fab button.acu-secondary { background: #2a333f; color: #e7edf4; }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Audit Trail Analyzer — Settings</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 18px 20px 22px;
+      width: 520px;
+      font: 13px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #1c2430;
+      background: #fff;
+    }
+    h1 { font-size: 15px; margin: 0 0 14px; }
+    h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7b8896;
+      margin: 20px 0 8px;
+    }
+    label { display: block; margin-bottom: 6px; }
+    select, textarea, input[type="number"] {
+      font: inherit;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px 9px;
+      border: 1px solid #cfd8e2;
+      border-radius: 6px;
+      background: #fff;
+      color: inherit;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    input[type="number"] { width: 90px; }
+    .row { display: flex; align-items: center; gap: 10px; }
+    .hint { color: #62707f; font-size: 12px; margin: 6px 0 0; }
+    .actions { margin-top: 18px; display: flex; align-items: center; gap: 10px; }
+    button {
+      font: inherit;
+      padding: 8px 16px;
+      border-radius: 7px;
+      border: 1px solid #1c6ea4;
+      background: #1c6ea4;
+      color: #fff;
+      cursor: pointer;
+    }
+    button.secondary { background: #fff; color: #1c2430; border-color: #cfd8e2; }
+    #status { color: #1f7a3d; font-size: 12px; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      background: #eef3f8;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a2029; color: #e7edf4; }
+      select, textarea, input[type="number"] { background: #2a333f; border-color: #3a4553; color: #e7edf4; }
+      button.secondary { background: #2a333f; color: #e7edf4; border-color: #3a4553; }
+      code { background: #2a333f; }
+      .hint { color: #a8b4c2; }
+      #status { color: #7ac795; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Audit Trail Analyzer — Settings</h1>
+
+  <h2>AI prompt</h2>
+  <label for="preset">Preset</label>
+  <select id="preset"></select>
+
+  <label for="prompt" style="margin-top:10px">Prompt text</label>
+  <textarea id="prompt" spellcheck="false"></textarea>
+  <p class="hint">
+    Prepended to the digest by <strong>Copy for AI</strong>. Placeholders:
+    <code>{entity}</code> <code>{record}</code> <code>{users}</code>
+    <code>{actions}</code> <code>{url}</code>
+  </p>
+
+  <h2>Display</h2>
+  <div class="row">
+    <input type="number" id="coalesce" min="0" max="300" step="1">
+    <label for="coalesce" style="margin:0">
+      Seconds within which one user's changes count as a single action
+    </label>
+  </div>
+  <p class="hint">
+    Saving a record in Acumatica often writes two or three audit entries a second apart.
+    Grouping them keeps the timeline readable. Set to 0 to list every entry separately.
+  </p>
+
+  <div class="row" style="margin-top:12px">
+    <input type="checkbox" id="showSystem">
+    <label for="showSystem" style="margin:0">Show system/derived fields by default</label>
+  </div>
+  <p class="hint">
+    Off by default. Internal counters, currency mirrors and validity flags are hidden
+    but never discarded — the toggle in the panel reveals them at any time.
+  </p>
+
+  <div class="actions">
+    <button id="save">Save</button>
+    <button id="reset" class="secondary">Restore defaults</button>
+    <span id="status"></span>
+  </div>
+
+  <script src="src/prompts.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

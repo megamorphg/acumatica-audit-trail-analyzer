@@ -1,0 +1,17 @@
+{
+  "name": "acumatica-audit-trail-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that turns Acumatica's field-level audit history (SM205540) into a plain-English timeline.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "demo": "node test/run.mjs",
+    "demo:ai": "node test/run.mjs --ai",
+    "serve": "node tools/serve.mjs 8123",
+    "icons": "node tools/make-icons.mjs",
+    "package": "node tools/package.mjs",
+    "shots": "node tools/shots.mjs"
+  }
+}
