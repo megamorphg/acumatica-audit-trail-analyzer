@@ -7,7 +7,7 @@ on:
       - 'firefox-v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sign:
@@ -59,10 +59,42 @@ jobs:
             --channel unlisted \
             --approval-timeout 900000
 
-      - name: Upload signed XPI
+      - name: Normalize signed XPI name
+        id: release_asset
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./manifest.json').version")"
+          XPI="$(find dist/signed -maxdepth 1 -type f -name '*.xpi' | head -n 1)"
+          test -n "$XPI"
+          OUT="dist/signed/acumatica-audit-trail-analyzer-firefox-v${VERSION}.xpi"
+          if [ "$XPI" != "$OUT" ]; then
+            mv "$XPI" "$OUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "xpi=$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Upload signed XPI artifact
         uses: actions/upload-artifact@v4
         with:
           name: acumatica-audit-trail-analyzer-firefox-signed
-          path: dist/signed/*.xpi
+          path: ${{ steps.release_asset.outputs.xpi }}
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish signed XPI to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/firefox-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          XPI: ${{ steps.release_asset.outputs.xpi }}
+          VERSION: ${{ steps.release_asset.outputs.version }}
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          TITLE="Acumatica Audit Trail Analyzer Firefox v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$XPI" --clobber
+          else
+            gh release create "$TAG" "$XPI" \
+              --verify-tag \
+              --title "$TITLE" \
+              --generate-notes
+          fi
