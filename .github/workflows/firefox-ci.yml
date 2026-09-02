@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - firefox-addon
   pull_request:
     branches:
       - main
@@ -31,6 +30,17 @@ jobs:
 
       - name: Package add-on
         run: npm run package
+
+      - name: Prepare packaged source for Firefox lint
+        run: |
+          ZIP="$(find dist -maxdepth 1 -type f -name '*.zip' | head -n 1)"
+          test -n "$ZIP"
+          rm -rf dist/lint-source
+          mkdir -p dist/lint-source
+          unzip -q "$ZIP" -d dist/lint-source
+
+      - name: Lint Firefox package
+        run: npx --yes web-ext@10 lint --source-dir dist/lint-source
 
       - name: Upload Firefox package
         uses: actions/upload-artifact@v4
