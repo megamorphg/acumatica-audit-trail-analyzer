@@ -34,11 +34,13 @@ This permission model is preferred over hardcoding Acumatica hostnames because c
 
 Temporary add-ons are for testing and are removed when Firefox restarts.
 
-## Permanent installation and Mozilla signing
+## Permanent installation, signing, and GitHub Releases
 
-Normal Firefox installations require distributed add-ons to be signed by Mozilla. This fork includes a stable Gecko extension ID in `manifest.json` and uses **unlisted signing** for personal/internal distribution.
+Normal Firefox installations require distributed add-ons to be signed by Mozilla. This fork uses **unlisted signing**: Mozilla signs the add-on, while GitHub remains the source and distribution location.
 
-The workflow `.github/workflows/firefox-sign.yml` runs the analyzer tests, packages the runtime files, submits them to Mozilla Add-ons through `web-ext sign --channel unlisted`, and stores the returned signed `.xpi` as a GitHub Actions artifact.
+The workflow `.github/workflows/firefox-sign.yml` runs tests, packages the runtime files, submits them to Mozilla through `web-ext sign --channel unlisted`, and stores the returned signed `.xpi` as a GitHub Actions artifact.
+
+For tagged releases, the same workflow also publishes the Mozilla-signed `.xpi` as a permanent **GitHub Release asset**. GitHub is therefore the place from which the add-on is downloaded; AMO is used only for the Firefox-required signature.
 
 ### One-time signing setup
 
@@ -47,13 +49,23 @@ The workflow `.github/workflows/firefox-sign.yml` runs the analyzer tests, packa
 3. Add these repository secrets:
    - `AMO_JWT_ISSUER` — Mozilla's JWT issuer/API key.
    - `AMO_JWT_SECRET` — Mozilla's JWT secret/API secret.
-4. Run the **Sign Firefox add-on** workflow manually from GitHub Actions.
-5. Download the resulting signed-XPI workflow artifact.
-6. In Firefox, open **Add-ons and themes**, use the gear menu, choose **Install Add-on From File**, and select the signed `.xpi`.
 
-Signing can also be triggered by a tag named `firefox-v<manifest-version>`, for example `firefox-v1.0.1`. The workflow verifies that the tag version exactly matches `manifest.json` before submitting it to Mozilla.
+### Normal release process
 
-Each Mozilla submission must use a new add-on version. Do not rerun signing against a version that AMO has already accepted; bump the manifest version first.
+1. Merge the desired code into `main`.
+2. Increment `manifest.json` to a version that has never been submitted to AMO.
+3. Create/push a tag named `firefox-v<version>`, for example `firefox-v1.0.1`.
+4. **Sign Firefox add-on** runs automatically.
+5. The workflow verifies the tag matches the manifest version, submits the add-on to Mozilla, receives the signed XPI, and publishes it to a GitHub Release with that tag.
+6. Download/install the `.xpi` from the repository's **Releases** page.
+
+Each Mozilla submission must use a new add-on version. Do not rerun signing against a version AMO has already accepted; bump the manifest version first.
+
+### Publishing an already-signed build
+
+If a version was signed manually before GitHub Release publishing was enabled, use **Publish existing signed Firefox XPI** in GitHub Actions. Supply the successful signing workflow run ID and the version. It downloads the existing signed artifact and creates the GitHub Release without submitting the version to Mozilla again.
+
+For the original Firefox 1.0.0 build, the successful signing run is `33659202951`.
 
 ## Automated upstream maintenance
 
