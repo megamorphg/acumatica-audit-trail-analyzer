@@ -1,0 +1,75 @@
+name: Sync upstream
+
+on:
+  schedule:
+    # Weekly: Monday at 15:17 UTC.
+    - cron: '17 15 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Firefox fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/alconroy/acumatica-audit-trail-analyzer.git
+          git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: upstream
+        run: |
+          if git merge-base --is-ancestor upstream/main main; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Fork already contains upstream/main." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "New upstream commits found:" >> "$GITHUB_STEP_SUMMARY"
+            git log --oneline --no-merges main..upstream/main >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Merge upstream into sync branch
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          git switch -C automation/upstream-sync main
+          if ! git merge --no-edit upstream/main; then
+            echo "## Upstream merge conflict" >> "$GITHUB_STEP_SUMMARY"
+            echo "The scheduled sync could not merge upstream automatically. Resolve the conflict manually or with the GitHub assistant, preserving the Firefox-specific files and metadata." >> "$GITHUB_STEP_SUMMARY"
+            git status --short >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          git push --force origin automation/upstream-sync
+
+      - name: Create or update sync pull request
+        if: steps.upstream.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="$(gh pr list --head automation/upstream-sync --base main --state open --json number --jq '.[0].number // empty')"
+          BODY=$'Automated merge of the latest `alconroy/acumatica-audit-trail-analyzer` `main` into this Firefox fork.\n\nReview the upstream changes, confirm Firefox-specific manifest/packaging behavior remains intact, and let Firefox CI pass before merging.'
+
+          if [ -z "$PR_NUMBER" ]; then
+            gh pr create \
+              --base main \
+              --head automation/upstream-sync \
+              --title "Sync latest upstream analyzer changes" \
+              --body "$BODY"
+          else
+            gh pr edit "$PR_NUMBER" \
+              --title "Sync latest upstream analyzer changes" \
+              --body "$BODY"
+          fi
