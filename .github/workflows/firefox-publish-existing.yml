@@ -1,0 +1,71 @@
+name: Publish existing signed Firefox XPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      sign_run_id:
+        description: 'Successful Sign Firefox add-on workflow run ID'
+        required: true
+        default: '33659202951'
+      version:
+        description: 'Firefox add-on version from that signed run'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download signed XPI artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.sign_run_id }}
+        run: |
+          mkdir -p dist/release
+          STATUS="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" --jq .conclusion)"
+          if [ "$STATUS" != "success" ]; then
+            echo "Signing workflow run $RUN_ID did not complete successfully (conclusion: $STATUS)."
+            exit 1
+          fi
+          gh run download "$RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name acumatica-audit-trail-analyzer-firefox-signed \
+            --dir dist/release
+
+      - name: Prepare release asset
+        id: release_asset
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          XPI="$(find dist/release -type f -name '*.xpi' | head -n 1)"
+          test -n "$XPI" || { echo "No XPI found in signing artifact."; exit 1; }
+          OUT="dist/release/acumatica-audit-trail-analyzer-firefox-v${VERSION}.xpi"
+          if [ "$XPI" != "$OUT" ]; then
+            mv "$XPI" "$OUT"
+          fi
+          echo "xpi=$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.sign_run_id }}
+          VERSION: ${{ inputs.version }}
+          XPI: ${{ steps.release_asset.outputs.xpi }}
+        run: |
+          TAG="firefox-v${VERSION}"
+          TARGET="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" --jq .head_sha)"
+          TITLE="Acumatica Audit Trail Analyzer Firefox v${VERSION}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$XPI" --clobber
+          else
+            gh release create "$TAG" "$XPI" \
+              --target "$TARGET" \
+              --title "$TITLE" \
+              --notes "Mozilla-signed unlisted Firefox build. Download the .xpi asset below to install the add-on in Firefox."
+          fi
