@@ -6,7 +6,10 @@
   if (window.__acuAuditInjected) return;
   window.__acuAuditInjected = true;
 
-  const AcuAudit = window.AcuAudit;
+  // The analyzer modules attach to the extension sandbox global. In Firefox
+  // content-script sandboxes, that global is not guaranteed to be the same
+  // object as the page WindowProxy exposed as `window`.
+  const AcuAudit = globalThis.AcuAudit;
   const FEED = 'qp-data-feed#dfAuditHistoryBatches';
   const REQUEST = 'acu-audit-request';
   const RESPONSE = 'acu-audit-response';
