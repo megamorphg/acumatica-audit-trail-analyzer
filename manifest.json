@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Acumatica Audit Trail Analyzer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Turns Acumatica's field-level audit history into a plain-English timeline of who changed what, and when.",
   "permissions": ["activeTab", "scripting", "storage"],
   "browser_specific_settings": {
