@@ -1,6 +1,6 @@
 {
   "name": "acumatica-audit-trail-analyzer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Firefox add-on that turns Acumatica's field-level audit history (SM205540) into a plain-English timeline.",
   "license": "MIT",
