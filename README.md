@@ -2,7 +2,7 @@
 
 Chrome extension that turns Acumatica's field-level audit history into a plain-English timeline of who changed what, and when.
 
-Unofficial project — not affiliated with, endorsed by, or sponsored by Acumatica, Inc.
+Built and supported by Acugen Consulting, an Acumatica Services Partner. Not an Acumatica product.
 
 ## The problem
 
@@ -182,10 +182,11 @@ If Acumatica truncated the history itself (`ChangesLimitReached`), the panel say
 
 See [PRIVACY.md](PRIVACY.md). Short version: nothing is collected, stored, or transmitted anywhere — all processing is local to your browser, and no AI service is called.
 
-## Related
-
-[Acumatica Trace Copier](https://github.com/alconroy/acumatica-trace-copier) — same idea for Acumatica trace exceptions.
-
 ## License
 
 [MIT](LICENSE)
+
+## Also from Acugen Consulting
+
+- [Acumatica Trace Copier](https://github.com/alconroy/acumatica-trace-copier): one click from error to answer. Free for Chrome, Edge and Firefox. https://github.com/alconroy/acumatica-trace-copier
+- [Lumi for Acumatica](https://www.acugenconsulting.com/products/lumi): see what matters, instantly. A licensed product for Acumatica, with a free 30-day trial. https://www.acugenconsulting.com/products/lumi
