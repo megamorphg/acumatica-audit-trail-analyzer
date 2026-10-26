@@ -59,17 +59,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          PR_NUMBER="$(gh pr list --head automation/upstream-sync --base main --state open --json number --jq '.[0].number // empty')"
+          REPO="${{ github.repository }}"
+          PR_NUMBER="$(gh pr list --repo "$REPO" --head automation/upstream-sync --base main --state open --json number --jq '.[0].number // empty')"
           BODY=$'Automated merge of the latest `alconroy/acumatica-audit-trail-analyzer` `main` into this Firefox fork.\n\nReview the upstream changes, confirm Firefox-specific manifest/packaging behavior remains intact, and let Firefox CI pass before merging.'
 
           if [ -z "$PR_NUMBER" ]; then
             gh pr create \
+              --repo "$REPO" \
               --base main \
               --head automation/upstream-sync \
               --title "Sync latest upstream analyzer changes" \
               --body "$BODY"
           else
             gh pr edit "$PR_NUMBER" \
+              --repo "$REPO" \
               --title "Sync latest upstream analyzer changes" \
               --body "$BODY"
           fi
